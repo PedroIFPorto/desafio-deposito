@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desafio dos Depósitos</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 10px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .resumo {
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .barra-container {
+      background: #ddd;
+      border-radius: 20px;
+      overflow: hidden;
+      height: 20px;
+      margin-top: 8px;
+    }
+
+    .barra {
+      height: 100%;
+      width: 0%;
+      background: #2ecc71;
+      transition: width 0.3s;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .item {
+      background: #fff;
+      border-radius: 6px;
+      padding: 12px;
+      text-align: center;
+      font-size: 16px;
+      cursor: pointer;
+      user-select: none;
+      border: 2px solid transparent;
+    }
+
+    .checked {
+      background: #c8f7c5;
+      border-color: #2ecc71;
+      text-decoration: line-through;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>💰 Desafio dos Depósitos</h2>
+
+  <div class="resumo">
+    <div>🎯 Meta: <strong>R$ 20.100</strong></div>
+    <div>📊 Depósitos feitos: <strong id="qtd">0</strong></div>
+    <div>💵 Total acumulado: <strong>R$ <span id="total">0</span></strong></div>
+
+    <div class="barra-container">
+      <div class="barra" id="barra"></div>
+    </div>
+    <div id="percentual">0%</div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <script>
+    const TOTAL_NUMEROS = 200;
+    const META = 20100;
+
+    let checks = JSON.parse(localStorage.getItem("checks")) || {};
+
+    function salvar() {
+      localStorage.setItem("checks", JSON.stringify(checks));
+    }
+
+    function calcularResumo() {
+      let soma = 0;
+      let quantidade = 0;
+
+      for (let i = 1; i <= TOTAL_NUMEROS; i++) {
+        if (checks[i]) {
+          soma += i;
+          quantidade++;
+        }
+      }
+
+      const percentual = Math.min((soma / META) * 100, 100);
+
+      document.getElementById("total").textContent = soma;
+      document.getElementById("qtd").textContent = quantidade;
+      document.getElementById("barra").style.width = percentual + "%";
+      document.getElementById("percentual").textContent =
+        percentual.toFixed(1) + "%";
+    }
+
+    function render() {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+
+      for (let i = 1; i <= TOTAL_NUMEROS; i++) {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.textContent = `R$ ${i}`;
+
+        if (checks[i]) {
+          div.classList.add("checked");
+        }
+
+        div.onclick = () => {
+          checks[i] = !checks[i];
+          salvar();
+          render();
+        };
+
+        grid.appendChild(div);
+      }
+
+      calcularResumo();
+    }
+
+    render();
+  </script>
+
+</body>
+</html>

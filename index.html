@@ -82,15 +82,29 @@
 
   <div class="grid" id="grid"></div>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
   <script>
+    // 🔴 COLE AQUI O SEU firebaseConfig
+    const firebaseConfig = {
+      apiKey: "COLE_AQUI",
+      authDomain: "COLE_AQUI",
+      databaseURL: "COLE_AQUI",
+      projectId: "COLE_AQUI",
+      storageBucket: "COLE_AQUI",
+      messagingSenderId: "COLE_AQUI",
+      appId: "COLE_AQUI"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const ref = db.ref("desafio");
+
     const TOTAL_NUMEROS = 200;
     const META = 20100;
-
-    let checks = JSON.parse(localStorage.getItem("checks")) || {};
-
-    function salvar() {
-      localStorage.setItem("checks", JSON.stringify(checks));
-    }
+    let checks = {};
 
     function calcularResumo() {
       let soma = 0;
@@ -121,14 +135,11 @@
         div.className = "item";
         div.textContent = `R$ ${i}`;
 
-        if (checks[i]) {
-          div.classList.add("checked");
-        }
+        if (checks[i]) div.classList.add("checked");
 
         div.onclick = () => {
           checks[i] = !checks[i];
-          salvar();
-          render();
+          ref.set(checks);
         };
 
         grid.appendChild(div);
@@ -137,7 +148,11 @@
       calcularResumo();
     }
 
-    render();
+    // 🔄 Escuta em tempo real
+    ref.on("value", (snapshot) => {
+      checks = snapshot.val() || {};
+      render();
+    });
   </script>
 
 </body>

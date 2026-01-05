@@ -162,8 +162,7 @@ const isAdmin = params.get("admin") === "2529";
       calcularResumo();
     }
     
-document.getElementById("modo").textContent =
-  isAdmin ? "Administrador" : "Visualização";
+
 
     // 🔄 Escuta em tempo real
     ref.on("value", (snapshot) => {

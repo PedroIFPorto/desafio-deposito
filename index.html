@@ -154,11 +154,17 @@
         if (checks[i]) div.classList.add("checked");
         if (!isAdmin) div.classList.add("readonly");
 
-        div.onclick = () => {
-          if (!isAdmin) return;
-          checks[i] = !checks[i];
-          ref.set(checks);
-        };
+      div.onclick = () => {
+  if (!isAdmin) return;
+
+  const acao = checks[i] ? "desfazer" : "confirmar";
+  const ok = confirm(`Deseja ${acao} o depósito de R$ ${i}?`);
+
+  if (!ok) return;
+
+  checks[i] = !checks[i];
+  ref.set(checks);
+};
 
         grid.appendChild(div);
       }

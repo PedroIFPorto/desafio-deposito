@@ -14,28 +14,28 @@
 
     h2 {
       text-align: center;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
-    <div style="text-align:center; margin-bottom:8px; font-size:14px;">
-  🔐 Modo: <strong id="modo"></strong>
-</div>
-
+    .modo {
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
 
     .resumo {
-      background: #ffffff;
+      background: #fff;
       padding: 12px;
       border-radius: 6px;
       margin-bottom: 10px;
       text-align: center;
-      font-size: 16px;
     }
 
     .barra-container {
       background: #ddd;
       border-radius: 20px;
       overflow: hidden;
-      height: 20px;
+      height: 18px;
       margin-top: 8px;
     }
 
@@ -43,7 +43,6 @@
       height: 100%;
       width: 0%;
       background: #2ecc71;
-      transition: width 0.3s;
     }
 
     .grid {
@@ -54,10 +53,9 @@
 
     .item {
       background: #fff;
-      border-radius: 6px;
-      padding: 12px;
+      padding: 10px;
       text-align: center;
-      font-size: 16px;
+      border-radius: 6px;
       cursor: pointer;
       user-select: none;
       border: 2px solid transparent;
@@ -68,11 +66,17 @@
       border-color: #2ecc71;
       text-decoration: line-through;
     }
+
+    .readonly {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
   </style>
 </head>
 <body>
 
   <h2>💰 Desafio dos Depósitos</h2>
+  <div class="modo" id="modo"></div>
 
   <div class="resumo">
     <div>🎯 Meta: <strong>R$ 20.100</strong></div>
@@ -92,80 +96,77 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <script>
-    
+    // 🔐 ADMIN
+    const params = new URLSearchParams(window.location.search);
+    const isAdmin = params.get("admin") === "1234";
+
+    // 🔴 COLE SEU firebaseConfig AQUI
     const firebaseConfig = {
-      apiKey: "AIzaSyDRxhtq9epAkPkTaT5f9TD4rSZAUCfX6oc",
-      authDomain: "desafio-depositos-852a3.firebaseapp.com",
-      databaseURL: "https://desafio-depositos-852a3-default-rtdb.firebaseio.com",
-      projectId: "desafio-depositos-852a3",
-      storageBucket: "desafio-depositos-852a3.firebasestorage.app",
-      messagingSenderId: "647027057762",
-      appId: "1:647027057762:web:28a08bbd69362290ecdd3b"
+      apiKey: "COLE_AQUI",
+      authDomain: "COLE_AQUI",
+      databaseURL: "COLE_AQUI",
+      projectId: "COLE_AQUI",
+      storageBucket: "COLE_AQUI",
+      messagingSenderId: "COLE_AQUI",
+      appId: "COLE_AQUI"
     };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const ref = db.ref("desafio");
 
-    const TOTAL_NUMEROS = 200;
+    const TOTAL = 200;
     const META = 20100;
     let checks = {};
-    
-const params = new URLSearchParams(window.location.search);
-const isAdmin = params.get("admin") === "2529";
+
+    document.getElementById("modo").textContent =
+      isAdmin ? "🔓 Modo Administrador" : "👀 Modo Visualização";
 
     function calcularResumo() {
       let soma = 0;
-      let quantidade = 0;
+      let qtd = 0;
 
-      for (let i = 1; i <= TOTAL_NUMEROS; i++) {
+      for (let i = 1; i <= TOTAL; i++) {
         if (checks[i]) {
           soma += i;
-          quantidade++;
+          qtd++;
         }
       }
 
-      const percentual = Math.min((soma / META) * 100, 100);
+      const perc = Math.min((soma / META) * 100, 100);
 
       document.getElementById("total").textContent = soma;
-      document.getElementById("qtd").textContent = quantidade;
-      document.getElementById("barra").style.width = percentual + "%";
+      document.getElementById("qtd").textContent = qtd;
+      document.getElementById("barra").style.width = perc + "%";
       document.getElementById("percentual").textContent =
-        percentual.toFixed(1) + "%";
+        perc.toFixed(1) + "%";
     }
 
     function render() {
       const grid = document.getElementById("grid");
       grid.innerHTML = "";
 
-      for (let i = 1; i <= TOTAL_NUMEROS; i++) {
+      for (let i = 1; i <= TOTAL; i++) {
         const div = document.createElement("div");
         div.className = "item";
         div.textContent = `R$ ${i}`;
 
         if (checks[i]) div.classList.add("checked");
+        if (!isAdmin) div.classList.add("readonly");
 
-      div.onclick = () => {
-  if (!isAdmin) {
-    alert("🔒 Apenas visualização");
-    return;
-  }
-
-  checks[i] = !checks[i];
-  ref.set(checks);
-};
-
+        div.onclick = () => {
+          if (!isAdmin) return;
+          checks[i] = !checks[i];
+          ref.set(checks);
+        };
 
         grid.appendChild(div);
       }
 
       calcularResumo();
     }
-    
 
-
-    // 🔄 Escuta em tempo real
-    ref.on("value", (snapshot) => {
+    ref.on("value", snapshot => {
       checks = snapshot.val() || {};
       render();
     });
@@ -173,3 +174,4 @@ const isAdmin = params.get("admin") === "2529";
 
 </body>
 </html>
+

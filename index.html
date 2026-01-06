@@ -78,6 +78,7 @@
       padding: 6px;
       margin-bottom: 4px;
       border-radius: 4px;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -99,14 +100,13 @@
 
   <div class="grid" id="grid"></div>
 
-  <h3 style="margin-top:15px;">📅 Histórico de Depósitos</h3>
-  <div id="historico" style="font-size:14px;"></div>
+  <h3 style="margin-top:15px;">📅 Histórico de Movimentações</h3>
+  <div id="historico"></div>
 
-  <!-- 🔥 FIREBASE (SEMPRE ANTES DO SEU SCRIPT) -->
+  <!-- 🔥 Firebase (sempre antes do script principal) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <!-- 🚀 SEU SCRIPT -->
   <script>
     // 🔐 ADMIN
     const params = new URLSearchParams(window.location.search);
@@ -123,7 +123,6 @@
       appId: "1:647027057762:web:28a08bbd69362290ecdd3b"
     };
 
-    // ✅ ESTA LINHA AGORA FUNCIONA
     firebase.initializeApp(firebaseConfig);
 
     const db = firebase.database();
@@ -172,21 +171,25 @@
         div.onclick = () => {
           if (!isAdmin) return;
 
-          const acao = checks[i] ? "desfazer" : "confirmar";
-          if (!confirm(`Deseja ${acao} o depósito de R$ ${i}?`)) return;
+          const acaoTexto = checks[i] ? "desmarcar" : "confirmar";
+          if (!confirm(`Deseja ${acaoTexto} o depósito de R$ ${i}?`)) return;
 
-          if (!checks[i]) {
-            const agora = new Date();
-            const data =
-              agora.toLocaleDateString("pt-BR") +
-              " " +
-              agora.toLocaleTimeString("pt-BR", {
-                hour: "2-digit",
-                minute: "2-digit"
-              });
+          const agora = new Date();
+          const data =
+            agora.toLocaleDateString("pt-BR") +
+            " " +
+            agora.toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit"
+            });
 
-            refHistorico.push({ valor: i, data });
-          }
+          const acaoHistorico = checks[i] ? "desmarcado" : "marcado";
+
+          refHistorico.push({
+            valor: i,
+            data: data,
+            acao: acaoHistorico
+          });
 
           checks[i] = !checks[i];
           refChecks.set(checks);
@@ -205,13 +208,15 @@
       const lista = Object.values(dados || {}).reverse();
 
       if (lista.length === 0) {
-        div.innerHTML = "<em>Nenhum depósito registrado.</em>";
+        div.innerHTML = "<em>Nenhuma movimentação registrada.</em>";
         return;
       }
 
       lista.forEach(item => {
         const linha = document.createElement("div");
-        linha.textContent = `✔ R$ ${item.valor} — ${item.data}`;
+        const icone = item.acao === "marcado" ? "✔" : "❌";
+        const texto = item.acao === "marcado" ? "Marcado" : "Desmarcado";
+        linha.textContent = `${icone} ${texto} R$ ${item.valor} — ${item.data}`;
         div.appendChild(linha);
       });
     }
@@ -228,3 +233,4 @@
 
 </body>
 </html>
+

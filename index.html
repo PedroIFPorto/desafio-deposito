@@ -102,10 +102,11 @@
   <h3 style="margin-top:15px;">📅 Histórico de Depósitos</h3>
   <div id="historico" style="font-size:14px;"></div>
 
-  <!-- Firebase -->
+  <!-- 🔥 FIREBASE (SEMPRE ANTES DO SEU SCRIPT) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
+  <!-- 🚀 SEU SCRIPT -->
   <script>
     // 🔐 ADMIN
     const params = new URLSearchParams(window.location.search);
@@ -122,6 +123,7 @@
       appId: "1:647027057762:web:28a08bbd69362290ecdd3b"
     };
 
+    // ✅ ESTA LINHA AGORA FUNCIONA
     firebase.initializeApp(firebaseConfig);
 
     const db = firebase.database();
@@ -226,5 +228,3 @@
 
 </body>
 </html>
-
-

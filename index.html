@@ -1,235 +1,126 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Desafio dos Depósitos</title>
+<script>
+  // 🔐 ADMIN
+  const params = new URLSearchParams(window.location.search);
+  const isAdmin = params.get("admin") === "1234";
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      padding: 10px;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 6px;
-    }
-
-    .modo {
-      text-align: center;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-
-    .resumo {
-      background: #fff;
-      padding: 12px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-
-    .barra-container {
-      background: #ddd;
-      border-radius: 20px;
-      overflow: hidden;
-      height: 18px;
-      margin-top: 8px;
-    }
-
-    .barra {
-      height: 100%;
-      width: 0%;
-      background: #2ecc71;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-
-    .item {
-      background: #fff;
-      padding: 10px;
-      text-align: center;
-      border-radius: 6px;
-      cursor: pointer;
-      user-select: none;
-      border: 2px solid transparent;
-    }
-
-    .checked {
-      background: #c8f7c5;
-      border-color: #2ecc71;
-      text-decoration: line-through;
-    }
-
-    .readonly {
-      cursor: not-allowed;
-      opacity: 0.7;
-    }
-  </style>
-</head>
-<body>
-
-  <h2>💰 Desafio dos Depósitos</h2>
-  <div class="modo" id="modo"></div>
-
-  <div class="resumo">
-    <div>🎯 Meta: <strong>R$ 20.100</strong></div>
-    <div>📊 Depósitos feitos: <strong id="qtd">0</strong></div>
-    <div>💵 Total acumulado: <strong>R$ <span id="total">0</span></strong></div>
-
-    <div class="barra-container">
-      <div class="barra" id="barra"></div>
-    </div>
-    <div id="percentual">0%</div>
-  </div>
-
-  <div class="grid" id="grid"></div>
-
-  <h3 style="margin-top:15px;">📅 Histórico de Depósitos</h3>
-<div id="historico" style="font-size:14px;"></div>
-
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-  <script>
-    // 🔐 ADMIN
-    const params = new URLSearchParams(window.location.search);
-    const isAdmin = params.get("admin") === "1234";
-
-    // 🔴 COLE SEU firebaseConfig AQUI
+  // 🔴 Firebase config
   const firebaseConfig = {
-  apiKey: "AIzaSyDRxhtq9epAkPkTaT5f9TD4rSZAUCfX6oc",
-  authDomain: "desafio-depositos-852a3.firebaseapp.com",
-  databaseURL: "https://desafio-depositos-852a3-default-rtdb.firebaseio.com",
-  projectId: "desafio-depositos-852a3",
-  storageBucket: "desafio-depositos-852a3.firebasestorage.app",
-  messagingSenderId: "647027057762",
-  appId: "1:647027057762:web:28a08bbd69362290ecdd3b"
-};
+    apiKey: "AIzaSyDRxhtq9epAkPkTaT5f9TD4rSZAUCfX6oc",
+    authDomain: "desafio-depositos-852a3.firebaseapp.com",
+    databaseURL: "https://desafio-depositos-852a3-default-rtdb.firebaseio.com",
+    projectId: "desafio-depositos-852a3",
+    storageBucket: "desafio-depositos-852a3.firebasestorage.app",
+    messagingSenderId: "647027057762",
+    appId: "1:647027057762:web:28a08bbd69362290ecdd3b"
+  };
 
-    firebase.initializeApp(firebaseConfig);
-    
-   const refChecks = db.ref("desafio/checks");
-const refHistorico = db.ref("desafio/historico");
+  firebase.initializeApp(firebaseConfig);
 
-    const TOTAL = 200;
-    const META = 20100;
-    let checks = {};
+  // ✅ AGORA SIM
+  const db = firebase.database();
+  const refChecks = db.ref("desafio/checks");
+  const refHistorico = db.ref("desafio/historico");
 
-    document.getElementById("modo").textContent =
-      isAdmin ? "🔓 Modo Administrador" : "👀 Modo Visualização";
+  const TOTAL = 200;
+  const META = 20100;
+  let checks = {};
 
-    function calcularResumo() {
-      let soma = 0;
-      let qtd = 0;
+  document.getElementById("modo").textContent =
+    isAdmin ? "🔓 Modo Administrador" : "👀 Modo Visualização";
 
-      for (let i = 1; i <= TOTAL; i++) {
-        if (checks[i]) {
-          soma += i;
-          qtd++;
-        }
+  function calcularResumo() {
+    let soma = 0;
+    let qtd = 0;
+
+    for (let i = 1; i <= TOTAL; i++) {
+      if (checks[i]) {
+        soma += i;
+        qtd++;
       }
-
-      const perc = Math.min((soma / META) * 100, 100);
-
-      document.getElementById("total").textContent = soma;
-      document.getElementById("qtd").textContent = qtd;
-      document.getElementById("barra").style.width = perc + "%";
-      document.getElementById("percentual").textContent =
-        perc.toFixed(1) + "%";
     }
 
-    function render() {
-      const grid = document.getElementById("grid");
-      grid.innerHTML = "";
+    const perc = Math.min((soma / META) * 100, 100);
 
-      for (let i = 1; i <= TOTAL; i++) {
-        const div = document.createElement("div");
-        div.className = "item";
-        div.textContent = `R$ ${i}`;
+    document.getElementById("total").textContent = soma;
+    document.getElementById("qtd").textContent = qtd;
+    document.getElementById("barra").style.width = perc + "%";
+    document.getElementById("percentual").textContent =
+      perc.toFixed(1) + "%";
+  }
 
-        if (checks[i]) div.classList.add("checked");
-        if (!isAdmin) div.classList.add("readonly");
+  function render() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    for (let i = 1; i <= TOTAL; i++) {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.textContent = `R$ ${i}`;
+
+      if (checks[i]) div.classList.add("checked");
+      if (!isAdmin) div.classList.add("readonly");
 
       div.onclick = () => {
-  if (!isAdmin) return;
+        if (!isAdmin) return;
 
-  const acao = checks[i] ? "desfazer" : "confirmar";
-  const ok = confirm(`Deseja ${acao} o depósito de R$ ${i}?`);
-  if (!ok) return;
+        const acao = checks[i] ? "desfazer" : "confirmar";
+        const ok = confirm(`Deseja ${acao} o depósito de R$ ${i}?`);
+        if (!ok) return;
 
-  if (!checks[i]) {
-    const agora = new Date();
-    const data =
-      agora.toLocaleDateString("pt-BR") +
-      " " +
-      agora.toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
+        if (!checks[i]) {
+          const agora = new Date();
+          const data =
+            agora.toLocaleDateString("pt-BR") +
+            " " +
+            agora.toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit"
+            });
 
-    refHistorico.push({
-      valor: i,
-      data: data
+          refHistorico.push({
+            valor: i,
+            data: data
+          });
+        }
+
+        checks[i] = !checks[i];
+        refChecks.set(checks);
+      };
+
+      grid.appendChild(div);
+    }
+
+    calcularResumo();
+  }
+
+  function renderHistorico(dados) {
+    const div = document.getElementById("historico");
+    div.innerHTML = "";
+
+    const lista = Object.values(dados).reverse();
+
+    if (lista.length === 0) {
+      div.innerHTML = "<em>Nenhum depósito registrado.</em>";
+      return;
+    }
+
+    lista.forEach(item => {
+      const linha = document.createElement("div");
+      linha.textContent = `✔ R$ ${item.valor} — ${item.data}`;
+      div.appendChild(linha);
     });
   }
 
-  checks[i] = !checks[i];
-  refChecks.set(checks);
-};
-
-
-  const acao = checks[i] ? "desfazer" : "confirmar";
-  const ok = confirm(`Deseja ${acao} o depósito de R$ ${i}?`);
-
-  if (!ok) return;
-
-  checks[i] = !checks[i];
-  ref.set(checks);
-};
-
-        grid.appendChild(div);
-      }
-
-      calcularResumo();
-    }
-function renderHistorico(dados) {
-  const div = document.getElementById("historico");
-  div.innerHTML = "";
-
-  const lista = Object.values(dados).reverse();
-
-  if (lista.length === 0) {
-    div.innerHTML = "<em>Nenhum depósito registrado.</em>";
-    return;
-  }
-
-  lista.forEach(item => {
-    const linha = document.createElement("div");
-    linha.textContent = `✔ R$ ${item.valor} — ${item.data}`;
-    div.appendChild(linha);
+  refChecks.on("value", snapshot => {
+    checks = snapshot.val() || {};
+    render();
   });
-}
 
-   refChecks.on("value", snapshot => {
-  checks = snapshot.val() || {};
-  render();
-});
+  refHistorico.on("value", snapshot => {
+    renderHistorico(snapshot.val() || {});
+  });
+</script>
 
-refHistorico.on("value", snapshot => {
-  renderHistorico(snapshot.val() || {});
-});
 
-  </script>
 
-</body>
-</html>
 
